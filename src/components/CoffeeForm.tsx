@@ -12,13 +12,15 @@ export function CoffeeForm() {
   const [message, setMessage] = useState('')
   const [amountEth, setAmountEth] = useState('0.001')
 
-  const { data: hash, isPending, writeContract } = useWriteContract()
+  const { data: hash, isPending, isError, error, writeContract } = useWriteContract()
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash })
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!name || !message || !amountEth || !isConnected) return
 
+    console.log('Đang gửi giao dịch:', { name, message, amountEth, BUY_ME_A_COFFEE_ADDRESS })
+    
     writeContract({
       address: BUY_ME_A_COFFEE_ADDRESS,
       abi: buyMeACoffeeAbi,
@@ -26,6 +28,13 @@ export function CoffeeForm() {
       args: [name, message],
       value: parseEther(amountEth),
       chainId: baseSepolia.id,
+    }, {
+      onError: (err) => {
+        console.error('Lỗi khi gọi writeContract:', err)
+      },
+      onSuccess: (data) => {
+        console.log('Giao dịch đã được ký, hash:', data)
+      }
     })
   }
 
@@ -78,13 +87,20 @@ export function CoffeeForm() {
         </div>
         <button
           type="submit"
-          disabled={isPending || isConfirming || !name || !message}
+          disabled={isPending || isConfirming || !name || !message || !isConnected}
           className="mt-2 w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow-md disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
         >
-          {isPending ? 'Confirming in Wallet...' : isConfirming ? 'Processing Transaction...' : 'Send Coffee'}
+          {isPending ? 'Check Wallet...' : isConfirming ? 'Processing onchain...' : 'Send Coffee'}
         </button>
       </form>
       
+      {isError && (
+        <div className="mt-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm border border-red-200 overflow-hidden break-words">
+          <strong>Lỗi giao dịch:</strong> <br/>
+          {error?.message?.split('\n')[0] || 'Unknown error occurred. Please check console.'}
+        </div>
+      )}
+
       {isSuccess && (
         <div className="mt-4 p-3 bg-green-50 text-green-700 rounded-lg text-sm border border-green-200">
           🎉 Thank you for the coffee! <br/>
