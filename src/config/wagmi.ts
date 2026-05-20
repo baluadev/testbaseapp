@@ -13,7 +13,7 @@ export const config = createConfig({
   storage: createStorage({
     storage: cookieStorage
   }),
-  ssr: true,
+  ssr: false,
   transports: {
     [baseSepolia.id]: http('https://sepolia.base.org'),
   },
