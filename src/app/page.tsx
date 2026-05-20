@@ -1,31 +1,34 @@
-import { ConnectWallet } from '@/components/ConnectWallet'
-import { CounterDisplay } from '@/components/CounterDisplay'
-import { BatchIncrement } from '@/components/BatchIncrement'
-import { PayButton } from '@/components/PayButton'
+'use client'
+
+import dynamic from 'next/dynamic'
+
+const ConnectWallet = dynamic(() => import('@/components/ConnectWallet').then(m => m.ConnectWallet), { ssr: false })
+const CoffeeForm = dynamic(() => import('@/components/CoffeeForm').then(m => m.CoffeeForm), { ssr: false })
+const CoffeeList = dynamic(() => import('@/components/CoffeeList').then(m => m.CoffeeList), { ssr: false })
 
 export default function Home() {
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center gap-8 p-8 bg-gray-50">
-      <div className="text-center max-w-2xl">
-        <h1 className="text-4xl font-extrabold text-gray-900 mb-4 tracking-tight">
-          Base Onchain Starter
+    <main className="min-h-screen flex flex-col items-center py-12 px-4 sm:px-6 bg-gray-50">
+      <div className="text-center max-w-2xl mb-12">
+        <h1 className="text-5xl font-extrabold text-gray-900 mb-4 tracking-tight">
+          ☕️ Buy Me A Coffee Onchain
         </h1>
         <p className="text-lg text-gray-600 mb-8">
-          A starter template to build Next.js applications on Base. 
-          Connect your Smart Wallet, interact with a smart contract, and try out Base Pay.
+          Support your favorite creators directly on the Base network. <br/>
+          Zero hassle, gasless transactions with Smart Wallet, and permanent onchain messages.
         </p>
+        <ConnectWallet />
       </div>
-
-      <ConnectWallet />
       
-      <div className="flex flex-col md:flex-row gap-6 w-full max-w-4xl justify-center items-start">
-        <div className="flex flex-col gap-4 w-full md:w-1/2">
-          <CounterDisplay />
-          <BatchIncrement />
+      <div className="flex flex-col md:flex-row gap-8 w-full max-w-5xl justify-center items-start">
+        {/* Form bên trái */}
+        <div className="w-full md:w-1/2 flex justify-center md:justify-end">
+          <CoffeeForm />
         </div>
         
-        <div className="w-full md:w-1/2">
-          <PayButton />
+        {/* Danh sách bên phải */}
+        <div className="w-full md:w-1/2 flex justify-center md:justify-start">
+          <CoffeeList />
         </div>
       </div>
     </main>

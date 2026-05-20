@@ -1,46 +1,37 @@
 'use client'
 
 import { useAccount, useConnect, useDisconnect } from 'wagmi'
-import { SignInWithBaseButton } from '@base-org/account-ui/react'
-import { createBaseAccountSDK } from '@base-org/account'
-import { useEffect, useState } from 'react'
-
-const sdk = createBaseAccountSDK({
-  appName: 'Base Example App',
-  appLogoUrl: 'https://base.org/logo.png',
-})
 
 export function ConnectWallet() {
   const { address, isConnected, isConnecting, isReconnecting } = useAccount()
   const { connect, connectors } = useConnect()
   const { disconnect } = useDisconnect()
 
-  const handleSignIn = async () => {
-    try {
-      await sdk.getProvider().request({ method: 'wallet_connect' })
-    } catch (error) {
-      console.error('Sign in failed:', error)
-    }
-  }
-
   if (isReconnecting) return <div className="text-gray-500">Reconnecting...</div>
 
   if (!isConnected) {
     return (
       <div className="flex flex-col gap-4 items-center">
-        <SignInWithBaseButton align="center" variant="solid" colorScheme="light" onClick={handleSignIn} />
-        
-        <div className="flex gap-2">
-          {connectors.map((connector) => (
-            <button
-              key={connector.uid}
-              onClick={() => connect({ connector })}
-              disabled={isConnecting}
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400"
-            >
-              Connect {connector.name}
-            </button>
-          ))}
+        <div className="flex gap-3">
+          {connectors.map((connector) => {
+            // Style riêng cho nút Base Smart Wallet (Coinbase Wallet)
+            const isBaseAccount = connector.id === 'coinbaseWalletSDK' || connector.name.includes('Base')
+            
+            return (
+              <button
+                key={connector.uid}
+                onClick={() => connect({ connector })}
+                disabled={isConnecting}
+                className={`px-6 py-3 font-semibold rounded-lg shadow-sm transition-all disabled:opacity-50 ${
+                  isBaseAccount 
+                    ? 'bg-black text-white hover:bg-gray-800' 
+                    : 'bg-white border border-gray-200 text-gray-800 hover:bg-gray-50'
+                }`}
+              >
+                {isBaseAccount ? 'Sign in with Base' : `Connect ${connector.name}`}
+              </button>
+            )
+          })}
         </div>
       </div>
     )
